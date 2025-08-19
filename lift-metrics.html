@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lift Metrics - Workout Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Lift Metrics</h1>
+            <p>Analyze your performance and track progress over time</p>
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i> Add Workout
+                </a>
+                <a href="previous-workouts.html" class="nav-link">
+                    <i class="fas fa-history"></i> Previous Workouts
+                </a>
+                <a href="lift-metrics.html" class="nav-link active">
+                    <i class="fas fa-chart-line"></i> Lift Metrics
+                </a>
+                <a href="workout-templates.html" class="nav-link">
+                    <i class="fas fa-layer-group"></i> Templates
+                </a>
+                <a href="weight-tracker.html" class="nav-link">
+                    <i class="fas fa-weight-scale"></i> Weight Tracker
+                </a>
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <!-- Sample Data Notice -->
+            <div class="sample-data-notice">
+                <i class="fas fa-info-circle"></i>
+                <strong>Sample Data:</strong> This page is displaying sample workout data from the CSV files in the repository to demonstrate the application's capabilities. In a real application, this would show your actual performance metrics.
+            </div>
+
+            <!-- Exercise Selection -->
+            <div class="exercise-selection">
+                <h2>Select Exercise to Analyze</h2>
+                <div class="exercise-picker">
+                    <select id="exercise-selector">
+                        <option value="">Choose an exercise...</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                    
+                    <select id="metric-selector">
+                        <option value="weight">Weight (lbs)</option>
+                        <option value="reps">Reps</option>
+                        <option value="sets">Sets</option>
+                        <option value="volume">Volume (weight × reps × sets)</option>
+                        <option value="max-weight">Max Weight</option>
+                    </select>
+                    
+                    <select id="time-range">
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="180">Last 6 Months</option>
+                        <option value="365">Last Year</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Performance Summary -->
+            <div class="performance-summary" id="performance-summary" style="display: none;">
+                <h3>Performance Summary</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">Current Best</span>
+                        <span class="summary-value" id="current-best">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Personal Record</span>
+                        <span class="summary-value" id="personal-record">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Average</span>
+                        <span class="summary-value" id="average-performance">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Improvement</span>
+                        <span class="summary-value" id="improvement">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Chart -->
+            <div class="progress-chart" id="progress-chart" style="display: none;">
+                <h3>Progress Over Time</h3>
+                <div class="chart-container">
+                    <canvas id="progress-canvas" width="800" height="400"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #667eea;"></span>
+                        <span>Performance</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #56ab2f;"></span>
+                        <span>Trend Line</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Performance Data -->
+            <div class="performance-data" id="performance-data" style="display: none;">
+                <h3>Performance History</h3>
+                <div class="data-table-container">
+                    <table class="performance-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Sets</th>
+                                <th>Reps</th>
+                                <th>Weight (lbs)</th>
+                                <th>Volume</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performance-tbody">
+                            <!-- Will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Insights and Recommendations -->
+            <div class="insights" id="insights" style="display: none;">
+                <h3>Insights & Recommendations</h3>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <i class="fas fa-trending-up"></i>
+                        <h4>Progress Trend</h4>
+                        <p id="progress-trend">Loading...</p>
+                    </div>
+                    <div class="insight-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h4>Frequency</h4>
+                        <p id="workout-frequency">Loading...</p>
+                    </div>
+                    <div class="insight-card">
+                        <i class="fas fa-lightbulb"></i>
+                        <h4>Recommendations</h4>
+                        <p id="recommendations">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Performance Data -->
+            <div class="export-performance" id="export-performance" style="display: none;">
+                <h3>Export Performance Data</h3>
+                <div class="export-buttons">
+                    <button type="button" id="export-performance-csv" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export to CSV
+                    </button>
+                    <button type="button" id="export-chart" class="btn btn-primary">
+                        <i class="fas fa-image"></i> Export Chart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="lift-metrics.js"></script>
+</body>
+</html> 

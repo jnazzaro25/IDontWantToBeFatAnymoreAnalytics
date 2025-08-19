@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-dumbbell"></i> Workout Tracker</h1>
+            <p>Track your fitness journey, one exercise at a time</p>
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link active">
+                    <i class="fas fa-plus-circle"></i> Add Workout
+                </a>
+                <a href="previous-workouts.html" class="nav-link">
+                    <i class="fas fa-history"></i> Previous Workouts
+                </a>
+                <a href="lift-metrics.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Lift Metrics
+                </a>
+                <a href="workout-templates.html" class="nav-link">
+                    <i class="fas fa-layer-group"></i> Templates
+                </a>
+                <a href="weight-tracker.html" class="nav-link">
+                    <i class="fas fa-weight-scale"></i> Weight Tracker
+                </a>
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <!-- Template Selection Section -->
+            <div class="template-selection" id="template-selection" style="display: none;">
+                <h2>Load Workout Template</h2>
+                <div class="template-info">
+                    <div class="template-header-info">
+                        <h3 id="selected-template-name"></h3>
+                        <p id="selected-template-description"></p>
+                        <p class="template-meta" id="selected-template-meta"></p>
+                    </div>
+                    <div class="template-actions">
+                        <button type="button" id="load-template" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Load Template
+                        </button>
+                        <button type="button" id="clear-template" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear Template
+                        </button>
+                    </div>
+                </div>
+                <div id="template-exercises-preview">
+                    <!-- Template exercises will be displayed here -->
+                </div>
+            </div>
+
+            <!-- Date Selection -->
+            <div class="date-section">
+                <label for="workout-date">Workout Date:</label>
+                <input type="date" id="workout-date" value="">
+            </div>
+
+            <!-- Exercise Entry Form -->
+            <div class="exercise-form">
+                <h2>Add Exercise</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="exercise-name">Exercise Name *</label>
+                        <input type="text" id="exercise-name" placeholder="e.g., Bench Press, Squats" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exercise-type">Exercise Type *</label>
+                        <select id="exercise-type" required>
+                            <option value="">Select Type</option>
+                            <option value="strength">Strength</option>
+                            <option value="cardio">Cardio</option>
+                            <option value="flexibility">Flexibility</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Number of Sets -->
+                    <div class="form-group strength-field" style="display: none;">
+                        <label for="num-sets">Number of Sets *</label>
+                        <input type="number" id="num-sets" min="1" max="10" placeholder="3" required>
+                    </div>
+
+                    <!-- Sets Container -->
+                    <div class="sets-container" id="sets-container" style="display: none;">
+                        <!-- Sets will be dynamically generated here -->
+                    </div>
+
+                    <!-- Cardio-specific fields -->
+                    <div class="form-group cardio-field" style="display: none;">
+                        <label for="duration">Duration (min) *</label>
+                        <input type="number" id="duration" min="1" placeholder="30" required>
+                    </div>
+
+                    <div class="form-group cardio-field" style="display: none;">
+                        <label for="distance">Distance (miles)</label>
+                        <input type="number" id="distance" min="0" step="0.1" placeholder="3.1">
+                    </div>
+
+                    <!-- General fields -->
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="How did it feel? Any modifications?"></textarea>
+                    </div>
+                </div>
+
+                <button type="button" id="add-exercise" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Exercise
+                </button>
+            </div>
+
+            <!-- Today's Exercises -->
+            <div class="exercises-list">
+                <h2>Today's Exercises</h2>
+                <div id="exercises-container">
+                    <div class="no-exercises">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No exercises added yet. Start by adding your first exercise above!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="button" id="save-workout" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Workout to CSV
+                </button>
+                <button type="button" id="clear-workout" class="btn btn-secondary">
+                    <i class="fas fa-trash"></i> Clear Workout
+                </button>
+            </div>
+
+            <!-- Workout Summary -->
+            <div class="workout-summary" id="workout-summary" style="display: none;">
+                <h3>Workout Summary</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Exercises:</span>
+                        <span class="summary-value" id="total-exercises">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Sets:</span>
+                        <span class="summary-value" id="total-sets">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Reps:</span>
+                        <span class="summary-value" id="total-reps">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Weight:</span>
+                        <span class="summary-value" id="total-weight">0 lbs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

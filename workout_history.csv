@@ -1,0 +1,20 @@
+Date,Exercise Name,Exercise Type,Sets,Reps,Weight (lbs),Duration (min),Distance (miles),Notes,Workout ID,Week Number,Month,Year
+2024-01-15,Bench Press,strength,4,8,185,,,"Felt strong today, good form throughout",W001,3,January,2024
+2024-01-15,Squats,strength,4,10,225,,,"Deep squats, focused on form",W001,3,January,2024
+2024-01-15,Running,cardio,,,25,3.1,"5K run, maintained 8:00 pace",W001,3,January,2024
+2024-01-15,Pull-ups,strength,3,12,,,"Bodyweight, full range of motion",W001,3,January,2024
+2024-01-17,Deadlifts,strength,3,5,315,,,"Heavy day, good form",W002,3,January,2024
+2024-01-17,Push-ups,strength,3,20,,,"Perfect form, full range",W002,3,January,2024
+2024-01-17,Swimming,cardio,,,45,1.5,"Freestyle, felt great",W002,3,January,2024
+2024-01-19,Overhead Press,strength,4,6,135,,,"Shoulder day, moderate weight",W003,3,January,2024
+2024-01-19,Barbell Rows,strength,4,8,155,,,"Back focus, good mind-muscle connection",W003,3,January,2024
+2024-01-19,Cycling,cardio,,,30,12.5,"Indoor cycling, high intensity",W003,3,January,2024
+2024-01-22,Bench Press,strength,4,8,190,,,"Progressive overload, felt strong",W004,4,January,2024
+2024-01-22,Squats,strength,4,10,230,,,"Weight increase, maintained form",W004,4,January,2024
+2024-01-22,Jump Rope,cardio,,,15,,"High intensity intervals",W004,4,January,2024
+2024-01-24,Deadlifts,strength,3,5,320,,,"New PR! Great form",W005,4,January,2024
+2024-01-24,Pull-ups,strength,3,15,,,"Increased reps, feeling stronger",W005,4,January,2024
+2024-01-24,Running,cardio,,,20,2.5,"Easy pace, recovery run",W005,4,January,2024
+2024-01-26,Overhead Press,strength,4,6,140,,,"Progressive overload",W006,4,January,2024
+2024-01-26,Barbell Rows,strength,4,8,160,,,"Back strength improving",W006,4,January,2024
+2024-01-26,Yoga,flexibility,,,60,,"Morning flow, great stretch",W006,4,January,2024 

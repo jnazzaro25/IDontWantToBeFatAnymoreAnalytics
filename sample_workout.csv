@@ -1,0 +1,7 @@
+Exercise Name,Exercise Type,Sets,Reps,Weight (lbs),Duration (min),Distance (miles),Notes,Timestamp
+"Bench Press",strength,4,8,185,,,"Felt strong today, good form throughout",2024-01-15T10:30:00.000Z
+"Squats",strength,4,10,225,,,"Deep squats, focused on form",2024-01-15T10:45:00.000Z
+"Running",cardio,,,25,3.1,"5K run, maintained 8:00 pace",2024-01-15T11:00:00.000Z
+"Pull-ups",strength,3,12,,,"Bodyweight, full range of motion",2024-01-15T11:15:00.000Z
+"Deadlifts",strength,3,5,315,,,"Heavy day, good form",2024-01-15T11:30:00.000Z
+"Push-ups",strength,3,20,,,"Perfect form, full range",2024-01-15T11:45:00.000Z 

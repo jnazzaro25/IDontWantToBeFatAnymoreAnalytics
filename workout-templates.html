@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Templates - Workout Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-layer-group"></i> Workout Templates</h1>
+            <p>Build and manage your workout templates for different days</p>
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i> Add Workout
+                </a>
+                <a href="previous-workouts.html" class="nav-link">
+                    <i class="fas fa-history"></i> Previous Workouts
+                </a>
+                <a href="lift-metrics.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Lift Metrics
+                </a>
+                <a href="workout-templates.html" class="nav-link active">
+                    <i class="fas fa-layer-group"></i> Templates
+                </a>
+                <a href="weight-tracker.html" class="nav-link">
+                    <i class="fas fa-weight-scale"></i> Weight Tracker
+                </a>
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <!-- Template Builder Section -->
+            <div class="template-builder">
+                <h2>Create New Template</h2>
+                <div class="template-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="template-name">Template Name *</label>
+                            <input type="text" id="template-name" placeholder="e.g., Push Day, Pull Day, Leg Day" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="template-day">Day of Week</label>
+                            <select id="template-day">
+                                <option value="">Any Day</option>
+                                <option value="monday">Monday</option>
+                                <option value="tuesday">Tuesday</option>
+                                <option value="wednesday">Wednesday</option>
+                                <option value="thursday">Thursday</option>
+                                <option value="friday">Friday</option>
+                                <option value="saturday">Saturday</option>
+                                <option value="sunday">Sunday</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="template-description">Description</label>
+                        <textarea id="template-description" placeholder="Brief description of this workout template..."></textarea>
+                    </div>
+
+                    <!-- Template Exercises -->
+                    <div class="template-exercises">
+                        <h3>Template Exercises</h3>
+                        <div id="template-exercises-list">
+                            <div class="no-exercises">
+                                <i class="fas fa-plus-circle"></i>
+                                <p>No exercises added yet. Add your first exercise below!</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Exercise to Template -->
+                        <div class="add-exercise-to-template">
+                            <h4>Add Exercise to Template</h4>
+                            <div class="exercise-form-grid">
+                                <div class="form-group">
+                                    <label for="template-exercise-name">Exercise Name *</label>
+                                    <input type="text" id="template-exercise-name" placeholder="e.g., Bench Press">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="template-exercise-type">Exercise Type *</label>
+                                    <select id="template-exercise-type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="strength">Strength</option>
+                                        <option value="cardio">Cardio</option>
+                                        <option value="flexibility">Flexibility</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+
+                                <!-- Number of Sets for Template -->
+                                <div class="form-group template-strength-field" style="display: none;">
+                                    <label for="template-num-sets">Number of Sets</label>
+                                    <input type="number" id="template-num-sets" min="1" max="10" placeholder="3">
+                                </div>
+
+                                <!-- Template Sets Container -->
+                                <div class="template-sets-container" id="template-sets-container" style="display: none;">
+                                    <!-- Template sets will be generated here -->
+                                </div>
+
+                                <!-- Cardio fields for template -->
+                                <div class="form-group template-cardio-field" style="display: none;">
+                                    <label for="template-duration">Duration (min)</label>
+                                    <input type="number" id="template-duration" min="1" placeholder="30">
+                                </div>
+
+                                <div class="form-group template-cardio-field" style="display: none;">
+                                    <label for="template-distance">Distance (miles)</label>
+                                    <input type="number" id="template-distance" min="0" step="0.1" placeholder="3.1">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="template-exercise-notes">Notes</label>
+                                    <textarea id="template-exercise-notes" placeholder="Any specific notes for this exercise..."></textarea>
+                                </div>
+                            </div>
+
+                            <button type="button" id="add-exercise-to-template" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Exercise to Template
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Save Template -->
+                    <div class="save-template-section">
+                        <button type="button" id="save-template" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save Template
+                        </button>
+                        <button type="button" id="clear-template-form" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Templates -->
+            <div class="existing-templates">
+                <h2>Your Templates</h2>
+                <div id="templates-container">
+                    <div class="no-templates">
+                        <i class="fas fa-layer-group"></i>
+                        <p>No templates created yet. Create your first template above!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Actions -->
+            <div class="template-actions">
+                <h3>Template Management</h3>
+                <div class="action-buttons">
+                    <button type="button" id="export-templates" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export All Templates
+                    </button>
+                    <button type="button" id="import-templates" class="btn btn-secondary">
+                        <i class="fas fa-upload"></i> Import Templates
+                    </button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="workout-templates.js"></script>
+</body>
+</html> 

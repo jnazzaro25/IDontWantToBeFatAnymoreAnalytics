@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Tracker - Workout Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-weight-scale"></i> Weight Tracker</h1>
+            <p>Track your body composition and progress over time</p>
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i> Add Workout
+                </a>
+                <a href="previous-workouts.html" class="nav-link">
+                    <i class="fas fa-history"></i> Previous Workouts
+                </a>
+                <a href="lift-metrics.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Lift Metrics
+                </a>
+                <a href="workout-templates.html" class="nav-link">
+                    <i class="fas fa-layer-group"></i> Templates
+                </a>
+                <a href="weight-tracker.html" class="nav-link active">
+                    <i class="fas fa-weight-scale"></i> Weight Tracker
+                </a>
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <!-- Add New Weight Entry -->
+            <div class="weight-entry-form">
+                <h2>Add New Weight Entry</h2>
+                <div class="weight-form-grid">
+                    <div class="form-group">
+                        <label for="weight-date">Date *</label>
+                        <input type="date" id="weight-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="body-weight">Body Weight (lbs) *</label>
+                        <input type="number" id="body-weight" min="50" max="500" step="0.1" placeholder="180.5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="body-fat">Body Fat %</label>
+                        <input type="number" id="body-fat" min="3" max="50" step="0.1" placeholder="15.2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="muscle-mass">Muscle Mass (lbs)</label>
+                        <input type="number" id="muscle-mass" min="20" max="300" step="0.1" placeholder="120.0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="body-fat-lbs">Body Fat (lbs)</label>
+                        <input type="number" id="body-fat-lbs" min="1" max="200" step="0.1" placeholder="27.4">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lean-mass">Lean Mass (lbs)</label>
+                        <input type="number" id="lean-mass" min="20" max="300" step="0.1" placeholder="153.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bmi">BMI</label>
+                        <input type="number" id="bmi" min="10" max="60" step="0.1" placeholder="24.8" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="height">Height (inches)</label>
+                        <input type="number" id="height" min="48" max="96" step="0.5" placeholder="70" onchange="weightTracker.calculateBMI()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="waist">Waist (inches)</label>
+                        <input type="number" id="waist" min="20" max="80" step="0.1" placeholder="32.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="chest">Chest (inches)</label>
+                        <input type="number" id="chest" min="20" max="80" step="0.1" placeholder="42.0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="arms">Arms (inches)</label>
+                        <input type="number" id="arms" min="8" max="30" step="0.1" placeholder="14.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="thighs">Thighs (inches)</label>
+                        <input type="number" id="thighs" min="15" max="40" step="0.1" placeholder="24.0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="calories-consumed">Calories Consumed</label>
+                        <input type="number" id="calories-consumed" min="0" max="10000" step="50" placeholder="2200">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="water-intake">Water Intake (oz)</label>
+                        <input type="number" id="water-intake" min="0" max="200" step="1" placeholder="80">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sleep-hours">Sleep Hours</label>
+                        <input type="number" id="sleep-hours" min="0" max="24" step="0.5" placeholder="7.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stress-level">Stress Level (1-10)</label>
+                        <select id="stress-level">
+                            <option value="">Select Level</option>
+                            <option value="1">1 - Very Low</option>
+                            <option value="2">2 - Low</option>
+                            <option value="3">3 - Mild</option>
+                            <option value="4">4 - Moderate</option>
+                            <option value="5">5 - Medium</option>
+                            <option value="6">6 - Elevated</option>
+                            <option value="7">7 - High</option>
+                            <option value="8">8 - Very High</option>
+                            <option value="9">9 - Extreme</option>
+                            <option value="10">10 - Critical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="energy-level">Energy Level (1-10)</label>
+                        <select id="energy-level">
+                            <option value="">Select Level</option>
+                            <option value="1">1 - Exhausted</option>
+                            <option value="2">2 - Very Tired</option>
+                            <option value="3">3 - Tired</option>
+                            <option value="4">4 - Low</option>
+                            <option value="5">5 - Moderate</option>
+                            <option value="6">6 - Good</option>
+                            <option value="7">7 - High</option>
+                            <option value="8">8 - Very High</option>
+                            <option value="9">9 - Excellent</option>
+                            <option value="10">10 - Amazing</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="How are you feeling? Any changes in diet or routine?"></textarea>
+                    </div>
+                </div>
+
+                <div class="weight-form-actions">
+                    <button type="button" id="add-weight-entry" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Weight Entry
+                    </button>
+                    <button type="button" id="clear-weight-form" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Clear Form
+                    </button>
+                </div>
+            </div>
+
+            <!-- Weight Summary -->
+            <div class="weight-summary" id="weight-summary" style="display: none;">
+                <h2>Weight Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">Current Weight</span>
+                        <span class="summary-value" id="current-weight">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Starting Weight</span>
+                        <span class="summary-value" id="starting-weight">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Change</span>
+                        <span class="summary-value" id="total-change">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Current Body Fat</span>
+                        <span class="summary-value" id="current-body-fat">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Entries</span>
+                        <span class="summary-value" id="total-entries">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Days Tracked</span>
+                        <span class="summary-value" id="days-tracked">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weight Charts -->
+            <div class="weight-charts">
+                <h2>Progress Charts</h2>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Weight Progress</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="weight-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Body Fat Progress</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="body-fat-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Body Composition</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="composition-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Measurements</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="measurements-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weight History -->
+            <div class="weight-history">
+                <h2>Weight History</h2>
+                <div class="history-controls">
+                    <div class="search-box">
+                        <input type="text" id="search-weight" placeholder="Search notes...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <select id="filter-time-range">
+                            <option value="all">All Time</option>
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="180">Last 6 Months</option>
+                            <option value="365">Last Year</option>
+                        </select>
+                        
+                        <button type="button" id="clear-weight-filters" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </button>
+                    </div>
+                </div>
+
+                <div id="weight-entries-container">
+                    <div class="no-entries">
+                        <i class="fas fa-weight-scale"></i>
+                        <p>No weight entries yet. Start tracking your progress above!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="export-section">
+                <h3>Export Your Data</h3>
+                <div class="export-buttons">
+                    <button type="button" id="export-weight-csv" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export to CSV
+                    </button>
+                    <button type="button" id="export-weight-json" class="btn btn-primary">
+                        <i class="fas fa-code"></i> Export to JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="weight-tracker.js"></script>
+</body>
+</html> 

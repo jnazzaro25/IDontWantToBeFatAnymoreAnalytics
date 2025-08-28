@@ -1,15 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faChartLine, 
-  faDumbbell, 
-  faArrowTrendUp, 
-  faArrowTrendDown,
-  faFire,
-  faWeightHanging,
-  faRepeat,
-  faCalendar
-} from '@fortawesome/free-solid-svg-icons';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Chip,
+  Alert,
+  LinearProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
+} from '@mui/material';
+import {
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Whatshot as FireIcon,
+  FitnessCenter as FitnessCenterIcon,
+  Repeat as RepeatIcon,
+  CalendarToday as CalendarIcon
+} from '@mui/icons-material';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,9 +33,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -31,7 +43,6 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
 );
 
 const LiftMetrics = () => {
@@ -54,12 +65,20 @@ const LiftMetrics = () => {
       const totalVolume = exercise.sets.reduce((sum, set) => sum + (set.weight * set.reps), 0);
       const avgReps = exercise.sets.reduce((sum, set) => sum + set.reps, 0) / exercise.sets.length;
       
+      // Calculate estimated 1RM using Epley formula: weight * (1 + reps/30)
+      const oneRepMaxes = exercise.sets.map(set => {
+        if (set.reps === 1) return set.weight;
+        return set.weight * (1 + set.reps / 30);
+      });
+      const estimatedOneRepMax = Math.max(...oneRepMaxes);
+      
       return {
         date: workout.date,
         maxWeight,
         totalVolume,
         avgReps,
         sets: exercise.sets.length,
+        estimatedOneRepMax: Math.round(estimatedOneRepMax),
         notes: exercise.notes
       };
     }).sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -70,99 +89,101 @@ const LiftMetrics = () => {
   }, [selectedExercise, allWorkouts]);
 
   useEffect(() => {
-    loadSampleData();
+    loadWorkoutsFromCSV();
   }, []);
 
   useEffect(() => {
     analyzeExercise();
   }, [analyzeExercise]);
 
-  const loadSampleData = () => {
-    // Sample workout data for demonstration
-    const sampleWorkouts = [
-      {
-        id: 1,
-        date: '2024-01-15',
-        exercises: [
-          {
-            name: 'Bench Press',
-            type: 'strength',
-            sets: [
-              { weight: 185, reps: 8 },
-              { weight: 185, reps: 8 },
-              { weight: 185, reps: 7 }
-            ],
-            notes: 'Felt strong today'
-          }
-        ]
-      },
-      {
-        id: 2,
-        date: '2024-01-10',
-        exercises: [
-          {
-            name: 'Bench Press',
-            type: 'strength',
-            sets: [
-              { weight: 180, reps: 8 },
-              { weight: 180, reps: 8 },
-              { weight: 180, reps: 8 }
-            ],
-            notes: 'Good form'
-          }
-        ]
-      },
-      {
-        id: 3,
-        date: '2024-01-05',
-        exercises: [
-          {
-            name: 'Bench Press',
-            type: 'strength',
-            sets: [
-              { weight: 175, reps: 8 },
-              { weight: 175, reps: 8 },
-              { weight: 175, reps: 7 }
-            ],
-            notes: 'Starting to feel stronger'
-          }
-        ]
-      },
-      {
-        id: 4,
-        date: '2023-12-30',
-        exercises: [
-          {
-            name: 'Bench Press',
-            type: 'strength',
-            sets: [
-              { weight: 170, reps: 8 },
-              { weight: 170, reps: 8 },
-              { weight: 170, reps: 8 }
-            ],
-            notes: 'Consistent reps'
-          }
-        ]
-      },
-      {
-        id: 5,
-        date: '2023-12-25',
-        exercises: [
-          {
-            name: 'Bench Press',
-            type: 'strength',
-            sets: [
-              { weight: 165, reps: 8 },
-              { weight: 165, reps: 8 },
-              { weight: 165, reps: 7 }
-            ],
-            notes: 'Holiday workout'
-          }
-        ]
+  const loadWorkoutsFromCSV = async () => {
+    try {
+      // Load saved workouts from localStorage (saved via the save workout button)
+      const storedWorkouts = localStorage.getItem('saved_workouts');
+      let workoutData = [];
+      
+      if (storedWorkouts) {
+        workoutData = JSON.parse(storedWorkouts);
       }
-    ];
 
-    setAllWorkouts(sampleWorkouts);
+      // Also load repository CSV data if available
+      const repoCSVData = localStorage.getItem('repo_csv_data');
+      if (repoCSVData) {
+        const csvRows = JSON.parse(repoCSVData);
+        
+        // Convert CSV rows back to workout format
+        const csvWorkouts = {};
+        
+        csvRows.forEach(row => {
+          const [date, exerciseName, exerciseType, sets, reps, weight, duration, distance, notes, workoutId] = row;
+          
+          if (!csvWorkouts[workoutId]) {
+            csvWorkouts[workoutId] = {
+              id: workoutId,
+              date: date,
+              exercises: []
+            };
+          }
+          
+          // Find or create exercise in this workout
+          let exercise = csvWorkouts[workoutId].exercises.find(ex => ex.name === exerciseName);
+          if (!exercise) {
+            exercise = {
+              name: exerciseName,
+              type: exerciseType,
+              sets: exerciseType === 'strength' ? [] : undefined,
+              duration: exerciseType === 'cardio' ? duration : undefined,
+              distance: exerciseType === 'cardio' ? distance : undefined,
+              notes: notes
+            };
+            csvWorkouts[workoutId].exercises.push(exercise);
+          }
+          
+          // Add set data for strength exercises
+          if (exerciseType === 'strength' && sets && reps && weight) {
+            exercise.sets.push({
+              weight: parseInt(weight) || 0,
+              reps: parseInt(reps) || 0
+            });
+          }
+        });
+        
+        // Convert to array and merge with existing workouts
+        const csvWorkoutArray = Object.values(csvWorkouts);
+        
+        // Merge without duplicates (prefer localStorage workouts over CSV)
+        const existingIds = new Set(workoutData.map(w => w.id));
+        csvWorkoutArray.forEach(csvWorkout => {
+          if (!existingIds.has(csvWorkout.id)) {
+            workoutData.push(csvWorkout);
+          }
+        });
+      }
+
+      // Also check for any workout templates or current exercises that might have been used
+      // This ensures we can analyze data even if user hasn't used the save button yet
+      const currentExercises = localStorage.getItem('workout_exercises');
+      if (currentExercises && workoutData.length === 0) {
+        // Create a temporary workout from current exercises for analysis
+        const exercises = JSON.parse(currentExercises);
+        if (exercises.length > 0) {
+          const today = new Date().toISOString().split('T')[0];
+          const tempWorkout = {
+            id: 'temp_' + Date.now(),
+            date: today,
+            exercises: exercises.filter(ex => ex.type === 'strength' && ex.sets && ex.sets.length > 0)
+          };
+          if (tempWorkout.exercises.length > 0) {
+            workoutData = [tempWorkout];
+          }
+        }
+      }
+      
+      setAllWorkouts(workoutData);
+    } catch (error) {
+      console.error('Error loading workout data:', error);
+      setAllWorkouts([]);
+    }
   };
 
   const calculatePerformanceSummary = (data) => {
@@ -174,20 +195,25 @@ const LiftMetrics = () => {
     const weightChange = lastWorkout.maxWeight - firstWorkout.maxWeight;
     const volumeChange = lastWorkout.totalVolume - firstWorkout.totalVolume;
     const repsChange = lastWorkout.avgReps - firstWorkout.avgReps;
+    const oneRepMaxChange = lastWorkout.estimatedOneRepMax - firstWorkout.estimatedOneRepMax;
     
-    const weightTrend = weightChange > 0 ? 'increasing' : weightChange < 0 ? 'decreasing' : 'stable';
-    const volumeTrend = volumeChange > 0 ? 'increasing' : volumeChange < 0 ? 'decreasing' : 'stable';
-    const repsTrend = repsChange > 0 ? 'increasing' : repsChange < 0 ? 'decreasing' : 'stable';
+    const weightTrend = weightChange > 0 ? 'positive' : weightChange < 0 ? 'negative' : 'stable';
+    const volumeTrend = volumeChange > 0 ? 'positive' : volumeChange < 0 ? 'negative' : 'stable';
+    const repsTrend = repsChange > 0 ? 'positive' : repsChange < 0 ? 'negative' : 'stable';
+    const oneRepMaxTrend = oneRepMaxChange > 0 ? 'positive' : oneRepMaxChange < 0 ? 'negative' : 'stable';
 
     setPerformanceSummary({
       weightChange: weightChange > 0 ? `+${weightChange}` : weightChange.toString(),
       volumeChange: volumeChange > 0 ? `+${volumeChange}` : volumeChange.toString(),
       repsChange: repsChange > 0 ? `+${repsChange.toFixed(1)}` : repsChange.toFixed(1),
+      oneRepMaxChange: oneRepMaxChange > 0 ? `+${oneRepMaxChange}` : oneRepMaxChange.toString(),
       weightTrend,
       volumeTrend,
       repsTrend,
+      oneRepMaxTrend,
       totalWorkouts: data.length,
-      dateRange: `${firstWorkout.date} to ${lastWorkout.date}`
+      dateRange: `${firstWorkout.date} to ${lastWorkout.date}`,
+      currentOneRepMax: lastWorkout.estimatedOneRepMax
     });
   };
 
@@ -201,13 +227,13 @@ const LiftMetrics = () => {
     if (weightProgress > 0) {
       insights.push({
         type: 'positive',
-        icon: faArrowTrendUp,
+        icon: TrendingUpIcon,
         text: `You've increased your max weight by ${weightProgress} lbs!`
       });
     } else if (weightProgress < 0) {
       insights.push({
         type: 'warning',
-        icon: faArrowTrendDown,
+        icon: TrendingDownIcon,
         text: `Your max weight has decreased by ${Math.abs(weightProgress)} lbs. Consider deloading or checking form.`
       });
     }
@@ -218,13 +244,13 @@ const LiftMetrics = () => {
     if (consistencyRate >= 80) {
       insights.push({
         type: 'positive',
-        icon: faFire,
+        icon: FireIcon,
         text: `Great consistency! You're hitting ${consistencyRate.toFixed(0)}% of your target sets.`
       });
     } else {
       insights.push({
         type: 'info',
-        icon: faDumbbell,
+        icon: FitnessCenterIcon,
         text: `Consider aiming for more consistent set completion (currently ${consistencyRate.toFixed(0)}%).`
       });
     }
@@ -235,7 +261,7 @@ const LiftMetrics = () => {
     if (lastVolume > avgVolume) {
       insights.push({
         type: 'positive',
-        icon: faWeightHanging,
+        icon: FitnessCenterIcon,
         text: `Your latest workout volume (${lastVolume} lbs) is above your average (${avgVolume.toFixed(0)} lbs).`
       });
     }
@@ -261,8 +287,8 @@ const LiftMetrics = () => {
       datasets: [{
         label: 'Max Weight (lbs)',
         data: exerciseData.map(entry => entry.maxWeight),
-        borderColor: '#667eea',
-        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        borderColor: '#2B94FF',
+        backgroundColor: 'rgba(43, 148, 255, 0.1)',
         tension: 0.1,
         fill: true
       }]
@@ -272,8 +298,8 @@ const LiftMetrics = () => {
       datasets: [{
         label: 'Total Volume (lbs)',
         data: exerciseData.map(entry => entry.totalVolume),
-        borderColor: '#56ab2f',
-        backgroundColor: 'rgba(86, 171, 47, 0.1)',
+        borderColor: '#FF9500',
+        backgroundColor: 'rgba(255, 149, 0, 0.1)',
         tension: 0.1,
         fill: true
       }]
@@ -283,10 +309,25 @@ const LiftMetrics = () => {
       datasets: [{
         label: 'Average Reps',
         data: exerciseData.map(entry => entry.avgReps),
-        borderColor: '#ffc107',
-        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+        borderColor: '#9C27B0',
+        backgroundColor: 'rgba(156, 39, 176, 0.1)',
         tension: 0.1,
         fill: true
+      }]
+    },
+    oneRepMax: {
+      labels: exerciseData.map(entry => entry.date),
+      datasets: [{
+        label: 'Estimated 1RM (lbs)',
+        data: exerciseData.map(entry => entry.estimatedOneRepMax),
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        tension: 0.1,
+        fill: true,
+        pointBackgroundColor: '#4CAF50',
+        pointBorderColor: '#4CAF50',
+        pointBorderWidth: 2,
+        pointRadius: 5
       }]
     }
   };
@@ -318,158 +359,334 @@ const LiftMetrics = () => {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2>Lift Metrics Analysis</h2>
-        
-        <div className="exercise-selector">
-          <label htmlFor="exercise-select">Select Exercise to Analyze:</label>
-          <select
-            id="exercise-select"
-            value={selectedExercise}
-            onChange={(e) => setSelectedExercise(e.target.value)}
-          >
-            <option value="">Choose an exercise...</option>
-            {getUniqueExercises().map(exercise => (
-              <option key={exercise} value={exercise}>{exercise}</option>
-            ))}
-          </select>
-        </div>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h4" gutterBottom color="primary">
+            Lift Metrics Analysis
+          </Typography>
+          
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel>Select Exercise to Analyze</InputLabel>
+                <Select
+                  value={selectedExercise}
+                  onChange={(e) => setSelectedExercise(e.target.value)}
+                  label="Select Exercise to Analyze"
+                >
+                  <MenuItem value="">
+                    <em>Choose an exercise...</em>
+                  </MenuItem>
+                  {getUniqueExercises().map(exercise => (
+                    <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
-        {selectedExercise && exerciseData.length > 0 && (
-          <>
-            <div className="card">
-              <h3>Performance Summary</h3>
+      {selectedExercise && exerciseData.length > 0 && (
+        <>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom color="primary">
+                Performance Summary
+              </Typography>
               {performanceSummary && (
-                <div className="performance-summary">
-                  <div className="summary-grid">
-                    <div className="summary-item">
-                      <span className="summary-label">Weight Change</span>
-                      <span className={`summary-value ${performanceSummary.weightTrend}`}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Weight Change
+                      </Typography>
+                      <Typography 
+                        variant="h6" 
+                        color={performanceSummary.weightTrend === 'positive' ? 'success.main' : 
+                               performanceSummary.weightTrend === 'negative' ? 'error.main' : 'text.primary'}
+                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}
+                      >
+                        {performanceSummary.weightTrend === 'positive' ? <TrendingUpIcon /> : 
+                         performanceSummary.weightTrend === 'negative' ? <TrendingDownIcon /> : null}
                         {performanceSummary.weightChange} lbs
-                      </span>
-                    </div>
-                    <div className="summary-item">
-                      <span className="summary-label">Volume Change</span>
-                      <span className={`summary-value ${performanceSummary.volumeTrend}`}>
+                      </Typography>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Volume Change
+                      </Typography>
+                      <Typography 
+                        variant="h6" 
+                        color={performanceSummary.volumeTrend === 'positive' ? 'success.main' : 
+                               performanceSummary.volumeTrend === 'negative' ? 'error.main' : 'text.primary'}
+                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}
+                      >
+                        {performanceSummary.volumeTrend === 'positive' ? <TrendingUpIcon /> : 
+                         performanceSummary.volumeTrend === 'negative' ? <TrendingDownIcon /> : null}
                         {performanceSummary.volumeChange} lbs
-                      </span>
-                    </div>
-                    <div className="summary-item">
-                      <span className="summary-label">Reps Change</span>
-                      <span className={`summary-value ${performanceSummary.repsTrend}`}>
+                      </Typography>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Reps Change
+                      </Typography>
+                      <Typography 
+                        variant="h6" 
+                        color={performanceSummary.repsTrend === 'positive' ? 'success.main' : 
+                               performanceSummary.repsTrend === 'negative' ? 'error.main' : 'text.primary'}
+                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}
+                      >
+                        {performanceSummary.repsTrend === 'positive' ? <TrendingUpIcon /> : 
+                         performanceSummary.repsTrend === 'negative' ? <TrendingDownIcon /> : null}
                         {performanceSummary.repsChange}
-                      </span>
-                    </div>
-                    <div className="summary-item">
-                      <span className="summary-label">Total Workouts</span>
-                      <span className="summary-value">{performanceSummary.totalWorkouts}</span>
-                    </div>
-                    <div className="summary-item">
-                      <span className="summary-label">Date Range</span>
-                      <span className="summary-value">{performanceSummary.dateRange}</span>
-                    </div>
-                  </div>
-                </div>
+                      </Typography>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        1RM Change
+                      </Typography>
+                      <Typography 
+                        variant="h6" 
+                        color={performanceSummary.oneRepMaxTrend === 'positive' ? 'success.main' : 
+                               performanceSummary.oneRepMaxTrend === 'negative' ? 'error.main' : 'text.primary'}
+                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}
+                      >
+                        {performanceSummary.oneRepMaxTrend === 'positive' ? <TrendingUpIcon /> : 
+                         performanceSummary.oneRepMaxTrend === 'negative' ? <TrendingDownIcon /> : null}
+                        {performanceSummary.oneRepMaxChange} lbs
+                      </Typography>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Current 1RM
+                      </Typography>
+                      <Typography variant="h6" color="primary">
+                        {performanceSummary.currentOneRepMax} lbs
+                      </Typography>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Total Workouts
+                      </Typography>
+                      <Typography variant="h6" color="primary">
+                        {performanceSummary.totalWorkouts}
+                      </Typography>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Date Range
+                      </Typography>
+                      <Typography variant="h6" color="primary">
+                        {performanceSummary.dateRange}
+                      </Typography>
+                    </Card>
+                  </Grid>
+                </Grid>
               )}
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="card">
-              <h3>Performance Insights</h3>
-              <div className="insights-list">
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom color="primary">
+                Performance Insights
+              </Typography>
+              <Grid container spacing={2}>
                 {insights.map((insight, index) => (
-                  <div key={index} className={`insight-item ${insight.type}`}>
-                    <FontAwesomeIcon icon={insight.icon} />
-                    <span>{insight.text}</span>
-                  </div>
+                  <Grid item xs={12} key={index}>
+                    <Card 
+                      variant="outlined" 
+                      sx={{ 
+                        p: 2, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 2,
+                        backgroundColor: insight.type === 'positive' ? 'success.light' : 
+                                       insight.type === 'negative' ? 'error.light' : 'info.light',
+                        color: insight.type === 'positive' ? 'success.contrastText' : 
+                               insight.type === 'negative' ? 'error.contrastText' : 'info.contrastText'
+                      }}
+                    >
+                      <insight.icon />
+                      <Typography variant="body1">{insight.text}</Typography>
+                    </Card>
+                  </Grid>
                 ))}
-              </div>
-            </div>
+              </Grid>
+            </CardContent>
+          </Card>
 
-            <div className="card">
-              <h3>Progress Charts</h3>
-              <div className="charts-grid">
-                <div className="chart-container">
-                  <h4>Max Weight Progress</h4>
-                  <div className="chart-wrapper">
-                    <Line data={chartData.maxWeight} options={chartOptions} />
-                  </div>
-                </div>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom color="primary">
+                Progress Charts
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="h6" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FitnessCenterIcon />
+                      One Rep Max (1RM) Progress
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Estimated using Epley formula: Weight × (1 + Reps ÷ 30)
+                    </Typography>
+                    <Box sx={{ height: 300 }}>
+                      <Line data={chartData.oneRepMax} options={chartOptions} />
+                    </Box>
+                  </Card>
+                </Grid>
                 
-                <div className="chart-container">
-                  <h4>Volume Progress</h4>
-                  <div className="chart-wrapper">
-                    <Line data={chartData.volume} options={chartOptions} />
-                  </div>
-                </div>
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Max Weight Progress
+                    </Typography>
+                    <Box sx={{ height: 300 }}>
+                      <Line data={chartData.maxWeight} options={chartOptions} />
+                    </Box>
+                  </Card>
+                </Grid>
                 
-                <div className="chart-container">
-                  <h4>Reps Progress</h4>
-                  <div className="chart-wrapper">
-                    <Line data={chartData.reps} options={chartOptions} />
-                  </div>
-                </div>
-              </div>
-            </div>
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Volume Progress
+                    </Typography>
+                    <Box sx={{ height: 300 }}>
+                      <Line data={chartData.volume} options={chartOptions} />
+                    </Box>
+                  </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Reps Progress
+                    </Typography>
+                    <Box sx={{ height: 300 }}>
+                      <Line data={chartData.reps} options={chartOptions} />
+                    </Box>
+                  </Card>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
 
-            <div className="card">
-              <h3>Workout Details</h3>
-              <div className="workout-details">
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom color="primary">
+                Workout Details
+              </Typography>
+              <Grid container spacing={2}>
                 {exerciseData.map((entry, index) => (
-                  <div key={index} className="workout-detail-item">
-                    <div className="workout-detail-header">
-                      <h4>{entry.date}</h4>
-                      <div className="workout-stats">
-                        <span className="stat-badge">
-                          <FontAwesomeIcon icon={faWeightHanging} />
-                          Max: {entry.maxWeight} lbs
-                        </span>
-                        <span className="stat-badge">
-                          <FontAwesomeIcon icon={faFire} />
-                          Volume: {entry.totalVolume} lbs
-                        </span>
-                        <span className="stat-badge">
-                          <FontAwesomeIcon icon={faRepeat} />
-                          Avg Reps: {entry.avgReps.toFixed(1)}
-                        </span>
-                        <span className="stat-badge">
-                          <FontAwesomeIcon icon={faDumbbell} />
-                          Sets: {entry.sets}
-                        </span>
-                      </div>
-                    </div>
-                    {entry.notes && (
-                      <div className="workout-notes">
-                        <FontAwesomeIcon icon={faCalendar} />
-                        {entry.notes}
-                      </div>
-                    )}
-                  </div>
+                  <Grid item xs={12} key={index}>
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                      <Typography variant="h6" gutterBottom>
+                        {entry.date}
+                      </Typography>
+                      <Grid container spacing={1}>
+                        <Grid item xs={6} sm={2.4}>
+                          <Chip 
+                            icon={<FitnessCenterIcon />} 
+                            label={`Max: ${entry.maxWeight} lbs`} 
+                            size="small" 
+                            variant="outlined"
+                            color="primary"
+                          />
+                        </Grid>
+                        <Grid item xs={6} sm={2.4}>
+                          <Chip 
+                            icon={<TrendingUpIcon />} 
+                            label={`1RM: ${entry.estimatedOneRepMax} lbs`} 
+                            size="small" 
+                            variant="outlined"
+                            color="success"
+                          />
+                        </Grid>
+                        <Grid item xs={6} sm={2.4}>
+                          <Chip 
+                            icon={<FireIcon />} 
+                            label={`Volume: ${entry.totalVolume} lbs`} 
+                            size="small" 
+                            variant="outlined"
+                            color="secondary"
+                          />
+                        </Grid>
+                        <Grid item xs={6} sm={2.4}>
+                          <Chip 
+                            icon={<RepeatIcon />} 
+                            label={`Avg Reps: ${entry.avgReps.toFixed(1)}`} 
+                            size="small" 
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={6} sm={2.4}>
+                          <Chip 
+                            icon={<FitnessCenterIcon />} 
+                            label={`Sets: ${entry.sets}`} 
+                            size="small" 
+                            variant="outlined"
+                          />
+                        </Grid>
+                      </Grid>
+                      {entry.notes && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                          <CalendarIcon fontSize="small" />
+                          <Typography variant="body2">{entry.notes}</Typography>
+                        </Box>
+                      )}
+                    </Card>
+                  </Grid>
                 ))}
-              </div>
-            </div>
+              </Grid>
+            </CardContent>
+          </Card>
           </>
         )}
 
-        {selectedExercise && exerciseData.length === 0 && (
-          <div className="card">
-            <div className="no-data">
-              <FontAwesomeIcon icon={faChartLine} />
-              <p>No data available for {selectedExercise}. Try selecting a different exercise or add more workouts.</p>
-            </div>
-          </div>
-        )}
+      {selectedExercise && exerciseData.length === 0 && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <TrendingUpIcon color="primary" sx={{ fontSize: 48, mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              No data available for {selectedExercise}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Try selecting a different exercise or add more workouts.
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
 
-        {!selectedExercise && (
-          <div className="card">
-            <div className="select-prompt">
-              <FontAwesomeIcon icon={faChartLine} />
-              <p>Select an exercise above to view detailed metrics and progress analysis.</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      {!selectedExercise && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <TrendingUpIcon color="primary" sx={{ fontSize: 48, mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              Exercise Analysis
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Select an exercise above to view detailed metrics and progress analysis.
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
+    </Box>
   );
 };
 

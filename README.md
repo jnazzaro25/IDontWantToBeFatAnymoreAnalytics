@@ -1,6 +1,6 @@
 # 💪 Workout Tracker React
 
-A comprehensive workout and weight tracking application built with React and Material-UI, featuring a professional design system inspired by SmartRent's js-shared repository.
+A comprehensive workout and weight tracking application built with React and Material-UI, featuring the SmartRent (SMRT) brand design system with professional blue and orange color themes.
 
 ## ✨ Features
 

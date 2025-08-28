@@ -1,9 +1,9 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import { colors, spacing, typography, shadows, borderRadius, transitions } from './tokens';
+import { colors, spacing, typography, shadows, borderRadius, transitions } from './tokens.js';
 
-// Create Material-UI theme based on SmartRent design system
+// Create Material-UI theme based on SmartRent (SMRT) brand design system
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -14,9 +14,9 @@ const theme = createTheme({
       contrastText: colors.white,
     },
     secondary: {
-      main: colors.workout600,
-      light: colors.workout400,
-      dark: colors.workout800,
+      main: colors.secondary600,
+      light: colors.secondary400,
+      dark: colors.secondary800,
       contrastText: colors.white,
     },
     success: {
@@ -45,11 +45,11 @@ const theme = createTheme({
     },
     text: {
       primary: colors.gray900,
-      secondary: colors.gray600,
+      secondary: colors.gray700,
       disabled: colors.gray400,
     },
     background: {
-      default: colors.gray050,
+      default: colors.white,
       paper: colors.white,
     },
     divider: colors.gray200,
@@ -102,7 +102,7 @@ const theme = createTheme({
       fontSize: typography.fontSizes.sm,
       fontWeight: typography.fontWeights.regular,
       lineHeight: typography.lineHeights.normal,
-      color: colors.gray600,
+      color: colors.gray700,
     },
     button: {
       fontSize: typography.fontSizes.sm,
@@ -114,13 +114,13 @@ const theme = createTheme({
       fontSize: typography.fontSizes.xs,
       fontWeight: typography.fontWeights.regular,
       lineHeight: typography.lineHeights.normal,
-      color: colors.gray500,
+      color: colors.gray600,
     },
   },
   shape: {
     borderRadius: parseInt(borderRadius.lg),
   },
-  spacing: (factor: number) => spacing.xs * factor,
+  spacing: (factor) => spacing.xs * factor,
   components: {
     MuiButton: {
       styleOverrides: {
@@ -187,6 +187,25 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: shadows.sm,
+          backgroundColor: colors.primary600,
+          color: colors.white,
+          '& .MuiTypography-root': {
+            color: colors.white,
+          },
+          '& .MuiTab-root': {
+            color: colors.white,
+            opacity: 0.8,
+            '&.Mui-selected': {
+              color: colors.white,
+              opacity: 1,
+            },
+            '&:hover': {
+              opacity: 1,
+            },
+          },
+          '& .MuiTabs-indicator': {
+            backgroundColor: colors.white,
+          },
         },
       },
     },
@@ -203,11 +222,7 @@ const theme = createTheme({
   },
 });
 
-interface AppThemeProviderProps {
-  children: React.ReactNode;
-}
-
-export const AppThemeProvider: React.FC<AppThemeProviderProps> = ({ children }) => {
+const AppThemeProvider = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -216,4 +231,5 @@ export const AppThemeProvider: React.FC<AppThemeProviderProps> = ({ children }) 
   );
 };
 
+export { AppThemeProvider };
 export default theme;

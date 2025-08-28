@@ -1,15 +1,30 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faPlus, 
-  faTrash, 
-  faDownload, 
-  faCode,
-  faWeightScale,
-  faSearch,
-  faTimes
-} from '@fortawesome/free-solid-svg-icons';
-import { format } from 'date-fns';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  IconButton,
+  Chip,
+  Alert,
+  LinearProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Download as DownloadIcon,
+  Clear as ClearIcon,
+  Search as SearchIcon,
+  FilterList as FilterListIcon
+} from '@mui/icons-material';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,7 +36,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { format } from 'date-fns';
 
 ChartJS.register(
   CategoryScale,
@@ -468,493 +483,594 @@ const WeightTracker = () => {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2>Add New Weight Entry</h2>
-        
-        <div className="weight-form-grid">
-          <div className="form-group">
-            <label htmlFor="weight-date">Date *</label>
-            <input
-              type="date"
-              id="weight-date"
-              name="date"
-              value={formData.date}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h4" gutterBottom color="primary">
+            Add New Weight Entry
+          </Typography>
           
-          <div className="form-group">
-            <label htmlFor="body-weight">Body Weight (lbs) *</label>
-            <input
-              type="number"
-              id="body-weight"
-              name="bodyWeight"
-              value={formData.bodyWeight}
-              onChange={handleInputChange}
-              min="50"
-              max="500"
-              step="0.1"
-              placeholder="180.5"
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="body-fat">Body Fat %</label>
-            <input
-              type="number"
-              id="body-fat"
-              name="bodyFat"
-              value={formData.bodyFat}
-              onChange={handleInputChange}
-              min="3"
-              max="50"
-              step="0.1"
-              placeholder="15.2"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="muscle-mass">Muscle Mass (lbs)</label>
-            <input
-              type="number"
-              id="muscle-mass"
-              name="muscleMass"
-              value={formData.muscleMass}
-              onChange={handleInputChange}
-              min="20"
-              max="300"
-              step="0.1"
-              placeholder="120.0"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="body-fat-lbs">Body Fat (lbs)</label>
-            <input
-              type="number"
-              id="body-fat-lbs"
-              name="bodyFatLbs"
-              value={formData.bodyFatLbs}
-              onChange={handleInputChange}
-              min="1"
-              max="200"
-              step="0.1"
-              placeholder="27.4"
-              readOnly
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="lean-mass">Lean Mass (lbs)</label>
-            <input
-              type="number"
-              id="lean-mass"
-              name="leanMass"
-              value={formData.leanMass}
-              onChange={handleInputChange}
-              min="20"
-              max="300"
-              step="0.1"
-              placeholder="153.1"
-              readOnly
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="bmi">BMI</label>
-            <input
-              type="number"
-              id="bmi"
-              name="bmi"
-              value={formData.bmi}
-              min="10"
-              max="60"
-              step="0.1"
-              placeholder="24.8"
-              readOnly
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="height">Height (inches)</label>
-            <input
-              type="number"
-              id="height"
-              name="height"
-              value={formData.height}
-              onChange={handleInputChange}
-              min="48"
-              max="96"
-              step="0.5"
-              placeholder="70"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="waist">Waist (inches)</label>
-            <input
-              type="number"
-              id="waist"
-              name="waist"
-              value={formData.waist}
-              onChange={handleInputChange}
-              min="20"
-              max="80"
-              step="0.1"
-              placeholder="32.5"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="chest">Chest (inches)</label>
-            <input
-              type="number"
-              id="chest"
-              name="chest"
-              value={formData.chest}
-              onChange={handleInputChange}
-              min="20"
-              max="80"
-              step="0.1"
-              placeholder="42.0"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="arms">Arms (inches)</label>
-            <input
-              type="number"
-              id="arms"
-              name="arms"
-              value={formData.arms}
-              onChange={handleInputChange}
-              min="8"
-              max="30"
-              step="0.1"
-              placeholder="14.5"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="thighs">Thighs (inches)</label>
-            <input
-              type="number"
-              id="thighs"
-              name="thighs"
-              value={formData.thighs}
-              onChange={handleInputChange}
-              min="15"
-              max="40"
-              step="0.1"
-              placeholder="24.0"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="calories-consumed">Calories Consumed</label>
-            <input
-              type="number"
-              id="calories-consumed"
-              name="caloriesConsumed"
-              value={formData.caloriesConsumed}
-              onChange={handleInputChange}
-              min="0"
-              max="10000"
-              step="50"
-              placeholder="2200"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="water-intake">Water Intake (oz)</label>
-            <input
-              type="number"
-              id="water-intake"
-              name="waterIntake"
-              value={formData.waterIntake}
-              onChange={handleInputChange}
-              min="0"
-              max="200"
-              step="1"
-              placeholder="80"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="sleep-hours">Sleep Hours</label>
-            <input
-              type="number"
-              id="sleep-hours"
-              name="sleepHours"
-              value={formData.sleepHours}
-              onChange={handleInputChange}
-              min="0"
-              max="24"
-              step="0.5"
-              placeholder="7.5"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="stress-level">Stress Level (1-10)</label>
-            <select
-              id="stress-level"
-              name="stressLevel"
-              value={formData.stressLevel}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Level</option>
-              <option value="1">1 - Very Low</option>
-              <option value="2">2 - Low</option>
-              <option value="3">3 - Mild</option>
-              <option value="4">4 - Moderate</option>
-              <option value="5">5 - Medium</option>
-              <option value="6">6 - Elevated</option>
-              <option value="7">7 - High</option>
-              <option value="8">8 - Very High</option>
-              <option value="9">9 - Extreme</option>
-              <option value="10">10 - Critical</option>
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="energy-level">Energy Level (1-10)</label>
-            <select
-              id="energy-level"
-              name="energyLevel"
-              value={formData.energyLevel}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Level</option>
-              <option value="1">1 - Exhausted</option>
-              <option value="2">2 - Very Tired</option>
-              <option value="3">3 - Tired</option>
-              <option value="4">4 - Low</option>
-              <option value="5">5 - Moderate</option>
-              <option value="6">6 - Good</option>
-              <option value="7">7 - High</option>
-              <option value="8">8 - Very High</option>
-              <option value="9">9 - Excellent</option>
-              <option value="10">10 - Amazing</option>
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="notes">Notes</label>
-            <textarea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              placeholder="How are you feeling? Any changes in diet or routine?"
-            />
-          </div>
-        </div>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Date"
+                name="date"
+                value={formData.date}
+                onChange={handleInputChange}
+                required
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Body Weight (lbs)"
+                name="bodyWeight"
+                value={formData.bodyWeight}
+                onChange={handleInputChange}
+                inputProps={{ min: 50, max: 500, step: 0.1 }}
+                placeholder="180.5"
+                required
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Body Fat %"
+                name="bodyFat"
+                value={formData.bodyFat}
+                onChange={handleInputChange}
+                inputProps={{ min: 3, max: 50, step: 0.1 }}
+                placeholder="15.2"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Muscle Mass (lbs)"
+                name="muscleMass"
+                value={formData.muscleMass}
+                onChange={handleInputChange}
+                inputProps={{ min: 20, max: 300, step: 0.1 }}
+                placeholder="120.0"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Body Fat (lbs)"
+                name="bodyFatLbs"
+                value={formData.bodyFatLbs}
+                inputProps={{ min: 1, max: 200, step: 0.1, readOnly: true }}
+                placeholder="27.4"
+                variant="outlined"
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Lean Mass (lbs)"
+                name="leanMass"
+                value={formData.leanMass}
+                inputProps={{ min: 20, max: 300, step: 0.1, readOnly: true }}
+                placeholder="153.1"
+                variant="outlined"
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="BMI"
+                name="bmi"
+                value={formData.bmi}
+                inputProps={{ min: 10, max: 60, step: 0.1, readOnly: true }}
+                placeholder="24.8"
+                variant="outlined"
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Height (inches)"
+                name="height"
+                value={formData.height}
+                onChange={handleInputChange}
+                inputProps={{ min: 48, max: 96, step: 0.5 }}
+                placeholder="70"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Waist (inches)"
+                name="waist"
+                value={formData.waist}
+                onChange={handleInputChange}
+                inputProps={{ min: 20, max: 80, step: 0.1 }}
+                placeholder="32.5"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Chest (inches)"
+                name="chest"
+                value={formData.chest}
+                onChange={handleInputChange}
+                inputProps={{ min: 20, max: 80, step: 0.1 }}
+                placeholder="42.0"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Arms (inches)"
+                name="arms"
+                value={formData.arms}
+                onChange={handleInputChange}
+                inputProps={{ min: 8, max: 30, step: 0.1 }}
+                placeholder="14.5"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Thighs (inches)"
+                name="thighs"
+                value={formData.thighs}
+                onChange={handleInputChange}
+                inputProps={{ min: 15, max: 40, step: 0.1 }}
+                placeholder="24.0"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Calories Consumed"
+                name="caloriesConsumed"
+                value={formData.caloriesConsumed}
+                onChange={handleInputChange}
+                inputProps={{ min: 0, max: 10000, step: 50 }}
+                placeholder="2200"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Water Intake (oz)"
+                name="waterIntake"
+                value={formData.waterIntake}
+                onChange={handleInputChange}
+                inputProps={{ min: 0, max: 200, step: 1 }}
+                placeholder="80"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Sleep Hours"
+                name="sleepHours"
+                value={formData.sleepHours}
+                onChange={handleInputChange}
+                inputProps={{ min: 0, max: 24, step: 0.5 }}
+                placeholder="7.5"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Stress Level (1-10)</InputLabel>
+                <Select
+                  name="stressLevel"
+                  value={formData.stressLevel}
+                  onChange={handleInputChange}
+                  label="Stress Level (1-10)"
+                >
+                  <MenuItem value="">Select Level</MenuItem>
+                  <MenuItem value="1">1 - Very Low</MenuItem>
+                  <MenuItem value="2">2 - Low</MenuItem>
+                  <MenuItem value="3">3 - Mild</MenuItem>
+                  <MenuItem value="4">4 - Moderate</MenuItem>
+                  <MenuItem value="5">5 - Medium</MenuItem>
+                  <MenuItem value="6">6 - Elevated</MenuItem>
+                  <MenuItem value="7">7 - High</MenuItem>
+                  <MenuItem value="8">8 - Very High</MenuItem>
+                  <MenuItem value="9">9 - Extreme</MenuItem>
+                  <MenuItem value="10">10 - Critical</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Energy Level (1-10)</InputLabel>
+                <Select
+                  name="energyLevel"
+                  value={formData.energyLevel}
+                  onChange={handleInputChange}
+                  label="Energy Level (1-10)"
+                >
+                  <MenuItem value="">Select Level</MenuItem>
+                  <MenuItem value="1">1 - Exhausted</MenuItem>
+                  <MenuItem value="2">2 - Very Tired</MenuItem>
+                  <MenuItem value="3">3 - Tired</MenuItem>
+                  <MenuItem value="4">4 - Low</MenuItem>
+                  <MenuItem value="5">5 - Moderate</MenuItem>
+                  <MenuItem value="6">6 - Good</MenuItem>
+                  <MenuItem value="7">7 - High</MenuItem>
+                  <MenuItem value="8">8 - Very High</MenuItem>
+                  <MenuItem value="9">9 - Excellent</MenuItem>
+                  <MenuItem value="10">10 - Amazing</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleInputChange}
+                placeholder="How are you feeling? Any changes in diet or routine?"
+                variant="outlined"
+              />
+            </Grid>
+          </Grid>
 
-        <div className="weight-form-actions">
-          <button type="button" onClick={addWeightEntry} className="btn btn-primary">
-            <FontAwesomeIcon icon={faPlus} /> Add Weight Entry
-          </button>
-          <button type="button" onClick={clearForm} className="btn btn-secondary">
-            <FontAwesomeIcon icon={faTimes} /> Clear Form
-          </button>
-        </div>
-      </div>
+          <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={addWeightEntry}
+              startIcon={<AddIcon />}
+              size="large"
+            >
+              Add Weight Entry
+            </Button>
+            <Button 
+              variant="outlined" 
+              color="secondary" 
+              onClick={clearForm}
+              startIcon={<ClearIcon />}
+              size="large"
+            >
+              Clear Form
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
 
       {summary && (
-        <div className="card">
-          <h2>Weight Summary</h2>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="summary-label">Current Weight</span>
-              <span className="summary-value">{summary.currentWeight} lbs</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Starting Weight</span>
-              <span className="summary-value">{summary.startingWeight} lbs</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Total Change</span>
-              <span className="summary-value">{summary.totalChange}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Current Body Fat</span>
-              <span className="summary-value">{summary.currentBodyFat ? `${summary.currentBodyFat}%` : 'N/A'}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Total Entries</span>
-              <span className="summary-value">{summary.totalEntries}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Days Tracked</span>
-              <span className="summary-value">{summary.daysTracked}</span>
-            </div>
-          </div>
-        </div>
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Typography variant="h4" gutterBottom color="primary">
+              Weight Summary
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Current Weight
+                  </Typography>
+                  <Typography variant="h6" color="primary">
+                    {summary.currentWeight} lbs
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Starting Weight
+                  </Typography>
+                  <Typography variant="h6">
+                    {summary.startingWeight} lbs
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Change
+                  </Typography>
+                  <Typography variant="h6" color={summary.totalChange.includes('+') ? 'error' : 'success'}>
+                    {summary.totalChange}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Current Body Fat
+                  </Typography>
+                  <Typography variant="h6">
+                    {summary.currentBodyFat ? `${summary.currentBodyFat}%` : 'N/A'}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Entries
+                  </Typography>
+                  <Typography variant="h6">
+                    {summary.totalEntries}
+                  </Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Days Tracked
+                  </Typography>
+                  <Typography variant="h6">
+                    {summary.daysTracked}
+                  </Typography>
+                </Card>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       )}
 
       {weightEntries.length > 0 && (
         <>
-          <div className="card">
-            <h2>Progress Charts</h2>
-            <div className="charts-grid">
-              <div className="chart-container">
-                <h3>Weight Progress</h3>
-                <div className="chart-wrapper">
-                  <Line data={chartData.weight} options={chartOptions} />
-                </div>
-              </div>
-              
-              {chartData.bodyFat.datasets[0].data.length > 0 && (
-                <div className="chart-container">
-                  <h3>Body Fat Progress</h3>
-                  <div className="chart-wrapper">
-                    <Line data={chartData.bodyFat} options={chartOptions} />
-                  </div>
-                </div>
-              )}
-              
-              {(chartData.composition.datasets[0].data.length > 0 || chartData.composition.datasets[1].data.length > 0) && (
-                <div className="chart-container">
-                  <h3>Body Composition</h3>
-                  <div className="chart-wrapper">
-                    <Line data={chartData.composition} options={chartOptions} />
-                  </div>
-                </div>
-              )}
-              
-              {(chartData.measurements.datasets[0].data.length > 0 || chartData.measurements.datasets[1].data.length > 0 || 
-                chartData.measurements.datasets[2].data.length > 0 || chartData.measurements.datasets[3].data.length > 0) && (
-                <div className="chart-container">
-                  <h3>Measurements</h3>
-                  <div className="chart-wrapper">
-                    <Line data={chartData.measurements} options={chartOptions} />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h4" gutterBottom color="primary">
+                Progress Charts
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} lg={6}>
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Weight Progress
+                    </Typography>
+                    <Box sx={{ height: 400 }}>
+                      <Line data={chartData.weight} options={chartOptions} />
+                    </Box>
+                  </Card>
+                </Grid>
+                
+                {chartData.bodyFat.datasets[0].data.length > 0 && (
+                  <Grid item xs={12} lg={6}>
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                      <Typography variant="h6" gutterBottom>
+                        Body Fat Progress
+                      </Typography>
+                      <Box sx={{ height: 400 }}>
+                        <Line data={chartData.bodyFat} options={chartOptions} />
+                      </Box>
+                    </Card>
+                  </Grid>
+                )}
+                
+                {(chartData.composition.datasets[0].data.length > 0 || chartData.composition.datasets[1].data.length > 0) && (
+                  <Grid item xs={12} lg={6}>
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                      <Typography variant="h6" gutterBottom>
+                        Body Composition
+                      </Typography>
+                      <Box sx={{ height: 400 }}>
+                        <Line data={chartData.composition} options={chartOptions} />
+                      </Box>
+                    </Card>
+                  </Grid>
+                )}
+                
+                {(chartData.measurements.datasets[0].data.length > 0 || chartData.measurements.datasets[1].data.length > 0 || 
+                  chartData.measurements.datasets[2].data.length > 0 || chartData.measurements.datasets[3].data.length > 0) && (
+                  <Grid item xs={12} lg={6}>
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                      <Typography variant="h6" gutterBottom>
+                        Measurements
+                      </Typography>
+                      <Box sx={{ height: 400 }}>
+                        <Line data={chartData.measurements} options={chartOptions} />
+                      </Box>
+                    </Card>
+                  </Grid>
+                )}
+              </Grid>
+            </CardContent>
+          </Card>
 
-          <div className="card">
-            <h2>Weight History</h2>
-            <div className="history-controls">
-              <div className="search-box">
-                <input
-                  type="text"
-                  id="search-weight"
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h4" gutterBottom color="primary">
+                Weight History
+              </Typography>
+              <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+                <TextField
+                  size="small"
                   placeholder="Search notes..."
                   onChange={filterWeightEntries}
+                  InputProps={{
+                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />
+                  }}
+                  sx={{ minWidth: 200 }}
                 />
-                <FontAwesomeIcon icon={faSearch} />
-              </div>
-              
-              <div className="filter-controls">
-                <select id="filter-time-range" onChange={filterWeightEntries}>
-                  <option value="all">All Time</option>
-                  <option value="30">Last 30 Days</option>
-                  <option value="90">Last 90 Days</option>
-                  <option value="180">Last 6 Months</option>
-                  <option value="365">Last Year</option>
-                </select>
                 
-                <button type="button" onClick={clearWeightFilters} className="btn btn-secondary">
-                  <FontAwesomeIcon icon={faTimes} /> Clear Filters
-                </button>
-              </div>
-            </div>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Time Range</InputLabel>
+                  <Select
+                    defaultValue="all"
+                    onChange={filterWeightEntries}
+                    label="Time Range"
+                  >
+                    <MenuItem value="all">All Time</MenuItem>
+                    <MenuItem value="30">Last 30 Days</MenuItem>
+                    <MenuItem value="90">Last 90 Days</MenuItem>
+                    <MenuItem value="180">Last 6 Months</MenuItem>
+                    <MenuItem value="365">Last Year</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <Button 
+                  variant="outlined" 
+                  color="secondary" 
+                  onClick={clearWeightFilters}
+                  startIcon={<ClearIcon />}
+                  size="small"
+                >
+                  Clear Filters
+                </Button>
+              </Box>
 
-            <div id="weight-entries-container">
               {filteredEntries.length === 0 ? (
-                <div className="no-entries">
-                  <FontAwesomeIcon icon={faWeightScale} />
-                  <p>No weight entries found matching your filters.</p>
-                </div>
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <FilterListIcon color="primary" sx={{ fontSize: 48, mb: 2 }} />
+                  <Typography variant="body1" color="text.secondary">
+                    No weight entries found matching your filters.
+                  </Typography>
+                </Box>
               ) : (
-                filteredEntries
-                  .sort((a, b) => new Date(b.date) - new Date(a.date))
-                  .map(entry => (
-                    <div key={entry.id} className="weight-entry-item">
-                      <div className="weight-entry-header">
-                        <div className="weight-entry-date">
-                          <h3>{format(new Date(entry.date), 'MMM dd, yyyy')}</h3>
-                          <span className="weight-value">{entry.bodyWeight} lbs</span>
-                        </div>
-                        <div className="weight-entry-actions">
-                          <button
-                            className="delete-weight-entry"
-                            onClick={() => deleteWeightEntry(entry.id)}
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="weight-entry-details">
-                        <div className="detail-row">
-                          <div className="detail-item">
-                            <span className="detail-label">Body Fat</span>
-                            <span className="detail-value">{entry.bodyFat ? `${entry.bodyFat}%` : 'N/A'}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">BMI</span>
-                            <span className="detail-value">{entry.bmi ? entry.bmi.toFixed(1) : 'N/A'}</span>
-                          </div>
-                          <div className="detail-item">
-                            <span className="detail-label">Muscle Mass</span>
-                            <span className="detail-value">{entry.muscleMass ? `${entry.muscleMass} lbs` : 'N/A'}</span>
-                          </div>
-                        </div>
-                        
-                        {(entry.waist || entry.chest || entry.arms || entry.thighs) && (
-                          <div className="measurements-row">
-                            <span className="measurements-label">Measurements:</span>
-                            <span className="measurements-value">
-                              {[
+                <Grid container spacing={2}>
+                  {filteredEntries
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map(entry => (
+                      <Grid item xs={12} key={entry.id}>
+                        <Card variant="outlined" sx={{ p: 2 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Box>
+                              <Typography variant="h6">
+                                {format(new Date(entry.date), 'MMM dd, yyyy')}
+                              </Typography>
+                              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold' }}>
+                                {entry.bodyWeight} lbs
+                              </Typography>
+                            </Box>
+                            <Button
+                              size="small"
+                              color="error"
+                              onClick={() => deleteWeightEntry(entry.id)}
+                              startIcon={<DeleteIcon />}
+                            >
+                              Delete
+                            </Button>
+                          </Box>
+                          
+                          <Grid container spacing={2} sx={{ mb: 2 }}>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="body2" color="text.secondary">Body Fat</Typography>
+                              <Typography variant="body1">{entry.bodyFat ? `${entry.bodyFat}%` : 'N/A'}</Typography>
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="body2" color="text.secondary">BMI</Typography>
+                              <Typography variant="body1">{entry.bmi ? entry.bmi.toFixed(1) : 'N/A'}</Typography>
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <Typography variant="body2" color="text.secondary">Muscle Mass</Typography>
+                              <Typography variant="body1">{entry.muscleMass ? `${entry.muscleMass} lbs` : 'N/A'}</Typography>
+                            </Grid>
+                          </Grid>
+                          
+                          {(entry.waist || entry.chest || entry.arms || entry.thighs) && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              <strong>Measurements:</strong> {[
                                 entry.waist && `Waist: ${entry.waist}"`,
                                 entry.chest && `Chest: ${entry.chest}"`,
                                 entry.arms && `Arms: ${entry.arms}"`,
                                 entry.thighs && `Thighs: ${entry.thighs}"`
                               ].filter(Boolean).join(', ')}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {entry.notes && (
-                          <div className="weight-entry-notes">
-                            <FontAwesomeIcon icon={faWeightScale} />
-                            {entry.notes}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                            </Typography>
+                          )}
+                          
+                          {entry.notes && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 1 }}>
+                              <FilterListIcon fontSize="small" color="primary" />
+                              <Typography variant="body2">{entry.notes}</Typography>
+                            </Box>
+                          )}
+                        </Card>
+                      </Grid>
+                    ))}
+                </Grid>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="card">
-            <h3>Export Your Data</h3>
-            <div className="export-buttons">
-              <button type="button" onClick={exportToCSV} className="btn btn-success">
-                <FontAwesomeIcon icon={faDownload} /> Export to CSV
-              </button>
-              <button type="button" onClick={exportToJSON} className="btn btn-primary">
-                <FontAwesomeIcon icon={faCode} /> Export to JSON
-              </button>
-            </div>
-          </div>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom color="primary">
+                Export Your Data
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  onClick={exportToCSV}
+                  startIcon={<DownloadIcon />}
+                >
+                  Export to CSV
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={exportToJSON}
+                  startIcon={<DownloadIcon />}
+                >
+                  Export to JSON
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
         </>
       )}
 
       {message && (
-        <div className={`message ${message.type}`}>
+        <Alert severity={message.type} sx={{ mt: 2 }}>
           {message.text}
-        </div>
+        </Alert>
       )}
-    </div>
+    </Box>
   );
 };
 

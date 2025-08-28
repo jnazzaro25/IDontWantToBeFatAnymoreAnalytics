@@ -1,15 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faSearch, 
-  faTimes, 
-  faDownload, 
-  faDumbbell,
-  faRunning,
-  faCalendar,
-  faClock,
-  faFire
-} from '@fortawesome/free-solid-svg-icons';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Chip,
+  Alert,
+  LinearProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Stack,
+  Badge
+} from '@mui/material';
+import {
+  Search as SearchIcon,
+  FilterList as FilterListIcon,
+  Download as DownloadIcon,
+  Clear as ClearIcon,
+  FitnessCenter as FitnessCenterIcon,
+  DirectionsRun as DirectionsRunIcon
+} from '@mui/icons-material';
 import { format } from 'date-fns';
 
 const PreviousWorkouts = () => {
@@ -57,101 +75,87 @@ const PreviousWorkouts = () => {
   }, [allWorkouts, searchTerm, selectedExercise, timeRange]);
 
   useEffect(() => {
-    loadSampleData();
+    loadRealWorkoutData();
   }, []);
 
   useEffect(() => {
     filterWorkouts();
   }, [filterWorkouts]);
 
-  const loadSampleData = () => {
-    // Sample workout data for demonstration
-    const sampleWorkouts = [
-      {
-        id: 1,
-        date: '2024-01-15',
-        exercises: [
-          {
-            name: 'Bench Press',
-            type: 'strength',
-            sets: [
-              { weight: 185, reps: 8 },
-              { weight: 185, reps: 8 },
-              { weight: 185, reps: 7 }
-            ],
-            notes: 'Felt strong today'
-          },
-          {
-            name: 'Squats',
-            type: 'strength',
-            sets: [
-              { weight: 225, reps: 6 },
-              { weight: 225, reps: 6 },
-              { weight: 225, reps: 5 }
-            ],
-            notes: 'Legs were tired'
-          }
-        ],
-        totalDuration: 45,
-        notes: 'Great upper body and leg workout'
-      },
-      {
-        id: 2,
-        date: '2024-01-13',
-        exercises: [
-          {
-            name: 'Running',
-            type: 'cardio',
-            duration: 30,
-            distance: 3.1,
-            notes: 'Easy pace, felt good'
-          },
-          {
-            name: 'Pull-ups',
-            type: 'strength',
-            sets: [
-              { weight: 0, reps: 8 },
-              { weight: 0, reps: 7 },
-              { weight: 0, reps: 6 }
-            ],
-            notes: 'Bodyweight exercise'
-          }
-        ],
-        totalDuration: 50,
-        notes: 'Cardio and pull day'
-      },
-      {
-        id: 3,
-        date: '2024-01-10',
-        exercises: [
-          {
-            name: 'Deadlifts',
-            type: 'strength',
-            sets: [
-              { weight: 275, reps: 5 },
-              { weight: 275, reps: 5 },
-              { weight: 275, reps: 4 }
-            ],
-            notes: 'Heavy deadlifts'
-          },
-          {
-            name: 'Overhead Press',
-            type: 'strength',
-            sets: [
-              { weight: 135, reps: 6 },
-              { weight: 135, reps: 6 },
-              { weight: 135, reps: 5 }
-            ],
-            notes: 'Shoulder strength'
-          }
-        ],
-        totalDuration: 40,
-        notes: 'Back and shoulders focus'
+  const loadRealWorkoutData = () => {
+    try {
+      // Load saved workouts from localStorage (saved via the save workout button)
+      const storedWorkouts = localStorage.getItem('saved_workouts');
+      let workoutData = [];
+      
+      if (storedWorkouts) {
+        workoutData = JSON.parse(storedWorkouts);
       }
-    ];
 
-    setAllWorkouts(sampleWorkouts);
-    setFilteredWorkouts(sampleWorkouts);
+      // Also load repository CSV data if available
+      const repoCSVData = localStorage.getItem('repo_csv_data');
+      if (repoCSVData) {
+        const csvRows = JSON.parse(repoCSVData);
+        
+        // Convert CSV rows back to workout format
+        const csvWorkouts = {};
+        
+        csvRows.forEach(row => {
+          const [date, exerciseName, exerciseType, sets, reps, weight, duration, distance, notes, workoutId] = row;
+          
+          if (!csvWorkouts[workoutId]) {
+            csvWorkouts[workoutId] = {
+              id: workoutId,
+              date: date,
+              exercises: [],
+              totalDuration: 0,
+              notes: ''
+            };
+          }
+          
+          // Find or create exercise in this workout
+          let exercise = csvWorkouts[workoutId].exercises.find(ex => ex.name === exerciseName);
+          if (!exercise) {
+            exercise = {
+              name: exerciseName,
+              type: exerciseType,
+              sets: exerciseType === 'strength' ? [] : undefined,
+              duration: exerciseType === 'cardio' ? parseInt(duration) || 0 : undefined,
+              distance: exerciseType === 'cardio' ? parseFloat(distance) || 0 : undefined,
+              notes: notes || ''
+            };
+            csvWorkouts[workoutId].exercises.push(exercise);
+          }
+          
+          // Add set data for strength exercises
+          if (exerciseType === 'strength' && sets && reps && weight) {
+            exercise.sets.push({
+              weight: parseInt(weight) || 0,
+              reps: parseInt(reps) || 0
+            });
+          }
+        });
+        
+        // Convert to array and merge with existing workouts
+        const csvWorkoutArray = Object.values(csvWorkouts);
+        
+        // Merge without duplicates (prefer localStorage workouts over CSV)
+        const existingIds = new Set(workoutData.map(w => w.id));
+        csvWorkoutArray.forEach(csvWorkout => {
+          if (!existingIds.has(csvWorkout.id)) {
+            workoutData.push(csvWorkout);
+          }
+        });
+      }
+
+      // Sort workouts by date (newest first)
+      workoutData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      setAllWorkouts(workoutData);
+    } catch (error) {
+      console.error('Error loading workout data:', error);
+      setAllWorkouts([]);
+    }
   };
 
   const clearFilters = () => {
@@ -261,179 +265,283 @@ const PreviousWorkouts = () => {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2>Previous Workouts</h2>
-        
-        <div className="history-header">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search workouts, exercises, or notes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <FontAwesomeIcon icon={faSearch} />
-          </div>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h4" gutterBottom color="primary">
+            Previous Workouts
+          </Typography>
           
-          <div className="filter-controls">
-            <select
-              value={selectedExercise}
-              onChange={(e) => setSelectedExercise(e.target.value)}
-            >
-              <option value="">All Exercises</option>
-              {getUniqueExercises().map(exercise => (
-                <option key={exercise} value={exercise}>{exercise}</option>
-              ))}
-            </select>
+          {/* Search and Filter Controls */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                placeholder="Search workouts, exercises, or notes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+            </Grid>
             
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-            >
-              <option value="all">All Time</option>
-              <option value="7">Last 7 Days</option>
-              <option value="30">Last 30 Days</option>
-              <option value="90">Last 90 Days</option>
-              <option value="365">Last Year</option>
-            </select>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth>
+                <InputLabel>Exercise Filter</InputLabel>
+                <Select
+                  value={selectedExercise}
+                  onChange={(e) => setSelectedExercise(e.target.value)}
+                  label="Exercise Filter"
+                >
+                  <MenuItem value="">All Exercises</MenuItem>
+                  {getUniqueExercises().map(exercise => (
+                    <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
             
-            <button onClick={clearFilters} className="btn btn-secondary">
-              <FontAwesomeIcon icon={faTimes} /> Clear Filters
-            </button>
-          </div>
-        </div>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth>
+                <InputLabel>Time Range</InputLabel>
+                <Select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  label="Time Range"
+                >
+                  <MenuItem value="all">All Time</MenuItem>
+                  <MenuItem value="7">Last 7 Days</MenuItem>
+                  <MenuItem value="30">Last 30 Days</MenuItem>
+                  <MenuItem value="90">Last 90 Days</MenuItem>
+                  <MenuItem value="365">Last Year</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={2}>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={clearFilters}
+                startIcon={<ClearIcon />}
+                sx={{ height: '56px' }}
+              >
+                Clear Filters
+              </Button>
+            </Grid>
+          </Grid>
 
-        <div className="history-stats">
-          <div className="stat-item">
-            <FontAwesomeIcon icon={faCalendar} />
-            <span>{filteredWorkouts.length} Workouts</span>
-          </div>
-          <div className="stat-item">
-            <FontAwesomeIcon icon={faClock} />
-            <span>{filteredWorkouts.reduce((total, workout) => total + (workout.totalDuration || 0), 0)} min</span>
-          </div>
-          <div className="stat-item">
-            <FontAwesomeIcon icon={faFire} />
-            <span>{filteredWorkouts.reduce((total, workout) => total + workout.exercises.length, 0)} Exercises</span>
-          </div>
-        </div>
-      </div>
+          {/* Summary Statistics */}
+          <Grid container spacing={2}>
+            <Grid item xs={4}>
+              <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Total Workouts
+                </Typography>
+                <Typography variant="h6" color="primary">
+                  {filteredWorkouts.length}
+                </Typography>
+              </Card>
+            </Grid>
+            <Grid item xs={4}>
+              <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Total Minutes
+                </Typography>
+                <Typography variant="h6" color="secondary">
+                  {filteredWorkouts.reduce((total, workout) => total + (workout.totalDuration || 0), 0)}
+                </Typography>
+              </Card>
+            </Grid>
+            <Grid item xs={4}>
+              <Card variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Total Exercises
+                </Typography>
+                <Typography variant="h6">
+                  {filteredWorkouts.reduce((total, workout) => total + workout.exercises.length, 0)}
+                </Typography>
+              </Card>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       {filteredWorkouts.length === 0 ? (
-        <div className="card">
-          <div className="no-entries">
-            <FontAwesomeIcon icon={faSearch} />
-            <p>No workouts found matching your filters.</p>
-          </div>
-        </div>
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <SearchIcon color="primary" sx={{ fontSize: 48, mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              No workouts found
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              No workouts found matching your filters. Try adjusting your search criteria.
+            </Typography>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="workouts-timeline">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {filteredWorkouts
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .map(workout => {
               const stats = calculateWorkoutStats(workout);
               return (
-                <div key={workout.id} className="workout-item">
-                  <div className="workout-header">
-                    <div className="workout-date">
-                      <h3>{format(new Date(workout.date), 'EEEE, MMMM dd, yyyy')}</h3>
-                      <span className="workout-duration">
-                        {workout.totalDuration} minutes
-                      </span>
-                    </div>
-                    <div className="workout-stats">
-                      {stats.totalSets > 0 && (
-                        <span className="stat-badge">
-                          {stats.totalSets} sets, {stats.totalReps} reps
-                        </span>
-                      )}
-                      {stats.totalWeight > 0 && (
-                        <span className="stat-badge">
-                          {stats.totalWeight} lbs total
-                        </span>
-                      )}
-                      {stats.totalDistance > 0 && (
-                        <span className="stat-badge">
-                          {stats.totalDistance} miles
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                <Card key={workout.id} variant="outlined">
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Box>
+                        <Typography variant="h6" color="primary">
+                          {format(new Date(workout.date), 'EEEE, MMMM dd, yyyy')}
+                        </Typography>
+                        {workout.totalDuration > 0 && (
+                          <Typography variant="body2" color="text.secondary">
+                            {workout.totalDuration} minutes
+                          </Typography>
+                        )}
+                      </Box>
+                      <Stack direction="row" spacing={1}>
+                        {stats.totalSets > 0 && (
+                          <Chip
+                            size="small"
+                            label={`${stats.totalSets} sets, ${stats.totalReps} reps`}
+                            color="primary"
+                            variant="outlined"
+                          />
+                        )}
+                        {stats.totalWeight > 0 && (
+                          <Chip
+                            size="small"
+                            label={`${stats.totalWeight} lbs total`}
+                            color="secondary"
+                            variant="outlined"
+                          />
+                        )}
+                        {stats.totalDistance > 0 && (
+                          <Chip
+                            size="small"
+                            label={`${stats.totalDistance} miles`}
+                            color="success"
+                            variant="outlined"
+                          />
+                        )}
+                      </Stack>
+                    </Box>
 
-                  <div className="exercises-list">
-                    {workout.exercises.map((exercise, index) => (
-                      <div key={index} className="exercise-item">
-                        <div className="exercise-header">
-                          <div className="exercise-info">
-                            <h4 className="exercise-name">
-                              <FontAwesomeIcon 
-                                icon={exercise.type === 'strength' ? faDumbbell : faRunning} 
-                                className="exercise-icon"
+                    <Divider sx={{ mb: 2 }} />
+
+                    <Grid container spacing={2}>
+                      {workout.exercises.map((exercise, index) => (
+                        <Grid item xs={12} key={index}>
+                          <Card variant="outlined" sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              {exercise.type === 'strength' ? 
+                                <FitnessCenterIcon color="primary" /> : 
+                                <DirectionsRunIcon color="secondary" />
+                              }
+                              <Typography variant="h6" component="h4">
+                                {exercise.name}
+                              </Typography>
+                              <Chip 
+                                size="small" 
+                                label={exercise.type} 
+                                color={exercise.type === 'strength' ? 'primary' : 'secondary'}
+                                variant="outlined"
                               />
-                              {exercise.name}
-                            </h4>
-                            <span className="exercise-type">{exercise.type}</span>
-                          </div>
-                        </div>
+                            </Box>
 
-                        {exercise.type === 'strength' && exercise.sets && exercise.sets.length > 0 && (
-                          <div className="sets-display">
-                            {exercise.sets.map((set, setIndex) => (
-                              <div key={setIndex} className="set-display">
-                                <span className="set-number">Set {setIndex + 1}:</span>
-                                <span className="set-details">
-                                  {set.reps} reps @ {set.weight} lbs
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {exercise.type === 'cardio' && (
-                          <div className="cardio-details">
-                            {exercise.duration > 0 && (
-                              <span className="cardio-metric">Duration: {exercise.duration} min</span>
+                            {exercise.type === 'strength' && exercise.sets && exercise.sets.length > 0 && (
+                              <Box sx={{ mb: 1 }}>
+                                <Grid container spacing={1}>
+                                  {exercise.sets.map((set, setIndex) => (
+                                    <Grid item xs={6} sm={4} md={3} key={setIndex}>
+                                      <Chip
+                                        size="small"
+                                        label={`Set ${setIndex + 1}: ${set.reps} reps @ ${set.weight} lbs`}
+                                        variant="outlined"
+                                        color="primary"
+                                      />
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </Box>
                             )}
-                            {exercise.distance > 0 && (
-                              <span className="cardio-metric">Distance: {exercise.distance} miles</span>
+
+                            {exercise.type === 'cardio' && (
+                              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                                {exercise.duration > 0 && (
+                                  <Chip
+                                    size="small"
+                                    label={`Duration: ${exercise.duration} min`}
+                                    color="secondary"
+                                    variant="outlined"
+                                  />
+                                )}
+                                {exercise.distance > 0 && (
+                                  <Chip
+                                    size="small"
+                                    label={`Distance: ${exercise.distance} miles`}
+                                    color="secondary"
+                                    variant="outlined"
+                                  />
+                                )}
+                              </Stack>
                             )}
-                          </div>
-                        )}
 
-                        {exercise.notes && (
-                          <div className="exercise-notes">
-                            <FontAwesomeIcon icon={faDumbbell} />
-                            {exercise.notes}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                            {exercise.notes && (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                <FitnessCenterIcon fontSize="small" color="primary" />
+                                <Typography variant="body2" color="text.secondary">
+                                  {exercise.notes}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
 
-                  {workout.notes && (
-                    <div className="workout-notes">
-                      <FontAwesomeIcon icon={faCalendar} />
-                      {workout.notes}
-                    </div>
-                  )}
-                </div>
+                    {workout.notes && (
+                      <Box sx={{ mt: 2, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <SearchIcon fontSize="small" color="info" />
+                          <Typography variant="body2" color="info.contrastText">
+                            <strong>Workout Notes:</strong> {workout.notes}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
               );
             })}
-        </div>
+        </Box>
       )}
 
       {filteredWorkouts.length > 0 && (
-        <div className="card">
-          <div className="export-section">
-            <h3>Export Your Workout History</h3>
-            <button onClick={exportToCSV} className="btn btn-success">
-              <FontAwesomeIcon icon={faDownload} /> Export to CSV
-            </button>
-          </div>
-        </div>
+        <Card sx={{ mt: 3 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom color="primary">
+              Export Your Workout History
+            </Typography>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={exportToCSV}
+              startIcon={<DownloadIcon />}
+              size="large"
+            >
+              Export to CSV
+            </Button>
+          </CardContent>
+        </Card>
       )}
-    </div>
+    </Box>
   );
 };
 

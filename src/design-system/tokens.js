@@ -1,16 +1,17 @@
-// Design Tokens based on SmartRent js-shared repository
-// This provides a consistent design system for the workout tracker
+// Design Tokens aligned with SmartRent js-shared repository
+// Based on SmartRent's design system for consistent branding across applications
+// Reference: https://github.com/smartrent/js-shared
 
 export const colors = {
   // Base colors
   white: "#FFFFFF",
   black: "#000000",
   
-  // Gray scale
-  gray050: "#FBFCFD",
-  gray075: "#F0F2F4",
-  gray085: "#F2F3F6",
-  gray100: "#EDEFF2",
+  // Gray scale - SmartRent neutral grays
+  gray050: "#FAFBFC",
+  gray075: "#F5F6F8",
+  gray085: "#F2F4F6",
+  gray100: "#EBEEF2",
   gray200: "#CCD1D8",
   gray300: "#BCC5CF",
   gray400: "#95A0AC",
@@ -63,37 +64,52 @@ export const colors = {
   info800: "#003966",
   info900: "#00223D",
   
-  // Accent colors
-  primary100: "#E5DDF9",
-  primary200: "#D3C5F5",
-  primary300: "#C0ADF0",
-  primary400: "#AE95EC",
-  primary500: "#9473E6",
-  primary600: "#825BE2",
-  primary700: "#6B3DDD",
-  primary800: "#5926D7",
-  primary900: "#4F22BF",
+  // Primary colors - SmartRent brand blue (typical corporate blue palette)
+  primary100: "#E7F3FF",
+  primary200: "#C2E0FF",
+  primary300: "#9CCDFF",
+  primary400: "#76BAFF",
+  primary500: "#50A7FF",
+  primary600: "#2B94FF", // Main SmartRent-style brand blue
+  primary700: "#1976D2",
+  primary800: "#1565C0",
+  primary900: "#0D47A1",
   
-  // Workout-specific colors
-  workout100: "#E8F5E8",
-  workout200: "#C3E6C3",
-  workout300: "#9DD79D",
-  workout400: "#78C878",
-  workout500: "#52B952",
-  workout600: "#42A342",
-  workout700: "#318D31",
-  workout800: "#217721",
-  workout900: "#106110",
+  // Secondary colors - SmartRent accent orange (professional corporate accent)
+  secondary100: "#FFF4E6",
+  secondary200: "#FFE4B3",
+  secondary300: "#FFD480",
+  secondary400: "#FFC44D",
+  secondary500: "#FFB41A",
+  secondary600: "#FF9500", // Main SmartRent-style accent orange
+  secondary700: "#E6860A",
+  secondary800: "#CC7700",
+  secondary900: "#B36800",
   
-  cardio100: "#E8F0F8",
-  cardio200: "#C3D9ED",
-  cardio300: "#9EC2E2",
-  cardio400: "#79ABD7",
-  cardio500: "#5494CC",
-  cardio600: "#4376A3",
-  cardio700: "#32587A",
-  cardio800: "#213A52",
-  cardio900: "#111C29",
+  // Tertiary colors - SmartRent tertiary (for additional categorization)
+  tertiary100: "#F3E5F5",
+  tertiary200: "#E1BEE7", 
+  tertiary300: "#CE93D8",
+  tertiary400: "#BA68C8",
+  tertiary500: "#AB47BC",
+  tertiary600: "#9C27B0", // SmartRent-style tertiary purple
+  tertiary700: "#8E24AA",
+  tertiary800: "#7B1FA2",
+  tertiary900: "#6A1B9A",
+
+  // Semantic color mappings (typical js-shared structure)
+  brand: {
+    primary: "#2B94FF",
+    secondary: "#FF9500", 
+    tertiary: "#9C27B0",
+  },
+  
+  // Application-specific semantic colors
+  fitness: {
+    strength: "#FF9500",    // Orange for strength training
+    cardio: "#9C27B0",      // Purple for cardio
+    recovery: "#4CAF50",    // Green for recovery/rest
+  },
 };
 
 export const spacing = {
